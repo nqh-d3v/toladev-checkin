@@ -1,0 +1,15 @@
+<b>Có <%- actRD.length %> hoạt động sẵn sàng điểm danh.</b><br>
+<% if(actRD.length > 0) { %>
+<i class="text-danger">Lưu ý: Hệ thống sẽ tự nhận diện hoạt động</i><br>
+<b class="text-primary">Nhấn nút bên dưới để bắt đầu điểm danh:</b><br>
+<button class="btn btn-primary m-0" id="turnOnCamBtn" onclick="startCam()"><i class="fas fa-qrcode"></i> Quét mã QR</button>
+<button class="btn btn-primary m-0" id="turnOffCamBtn" onclick="stopCam()" style="display: none"><i class="fas fa-qrcode"></i> Tắt cam</button>
+<div class="row">
+  <div class="col-sm-4">
+    <video id="qrViewer" style="width: 100%; max-width: 350px;height: auto; display: none"></video>
+  </div>
+  <div class="col-sm-8">
+    <span id="progressCheckin"></span>
+  </div>
+</div>
+<% } %>

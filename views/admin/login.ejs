@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Đăng nhập | Quản trị viên</title>
+  <% include ../partials/admin-head %>
+  <style>
+    body{background: #0000 url('../img/bg-login.jpg') no-repeat center center fixed; background-size: cover;}
+  </style>
+</head>
+<body>
+  <div class="card card-trans-white" style="width: 100%; max-width: 350px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); -moz-transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%);">
+    <form id="formAct" action="/admin/login" method="POST" class="card-body">
+      <i class="text-danger"><%- mess %></i>
+      <input type="text" name="username" class="form-control mb-1" placeholder="Tên đăng nhập" required>
+      <input type="password" name="password" id="passwordInp" class="form-control mb-1" placeholder="Mật khẩu" required>
+      <div id="inpNameArea"></div>
+      <button class="btn btn-primary w-100 mb-1 mt-0" id="SubmitBtn" type="submit">Đăng nhập</button>
+      <a href="javascript:void(0)" id="forgetPasGen" style="text-decoration: none;" class="text-danger">Quên mật khẩu</a>
+      <a href="javascript:void(0)" id="createAccGen" style="text-decoration: none;" class="text-success float-right">Tạo tài khoản</a>
+      <a href="javascript:void(0)" id="loginAccGen" style="text-decoration: none; display: none" class="text-primary float-right">Đăng nhập</a>
+    </form>
+  </div>
+  <% include ../partials/admin-footer %>
+  <script>
+    $(document).ready(function() {
+      var inpNameHTML = `<input type="name" name="name" id="nameInp" class="form-control mb-1" placeholder="Họ và tên" required>`;
+      $('#forgetPasGen').click(function() {
+        $('#passwordInp').fadeOut();
+        $('#inpNameArea').html('');
+        $('#SubmitBtn').text('Kiểm tra');
+        $('#forgetPasGen').fadeOut();
+        $('#createAccGen').fadeOut();
+        $('#loginAccGen').fadeIn();
+        $('#formAct').attr('action', '/admin/forget-pass');
+      });
+      $('#createAccGen').click(function() {
+        $('#passwordInp').fadeIn();
+        $('#inpNameArea').html(inpNameHTML);
+        $('#SubmitBtn').text('Tạo tài khoản');
+        $('#forgetPasGen').fadeOut();
+        $('#createAccGen').fadeOut();
+        $('#loginAccGen').fadeIn();
+        $('#formAct').attr('action', '/admin/create-account');
+      });
+      
+      $('#loginAccGen').click(function() {
+        $('#passwordInp').fadeIn();
+        $('#inpNameArea').html('');
+        $('#SubmitBtn').text('Đăng nhập');
+        $('#forgetPasGen').fadeIn();
+        $('#createAccGen').fadeIn();
+        $('#loginAccGen').fadeOut();
+        $('#formAct').attr('action', '/admin/login');
+      });
+    })
+  </script>
+</body>
+</html>

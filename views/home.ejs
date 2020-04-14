@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Điểm danh</title>
+  <% include ./partials/html-head.ejs %>
+  <style>
+    body{background: url('/img/bg-1.png') no-repeat center center fixed; background-size: cover}
+  </style>
+</head>
+<body>
+  <div class="container pt-3">
+    <div class="row">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6">
+        <div class="card mb-3 card-trans-white">
+          <div class="card-body">
+            <span class="text-primary">Mã checkin được gửi vào gmail bạn sử dụng để đăng ký hoạt động, kiểm tra và điền nó vào ô bên dưới</span>
+            <div class="input-group mb-1">
+              <input type="text" id="codeRU" placeholder="xxxx-xxxx-xxxx-xxxx_xxxx-xxxx-xxxx" class="form-control">
+              <div class="input-group-append">
+                <button class="btn btn-primary" onclick="AJAX_checkCode()"><i class="fa fa-check"></i> Kiểm tra</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-3 card-trans-white">
+          <div class="row no-gutters">
+            <div class="col-md-4 text-center">
+              <div id="qrcode" class="card-body" style="width: 100% !; height: auto; max-width: 200px"></div>
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">Thông tin điểm danh</h5>
+                <div id="cont_checkin"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+  <% include ./partials/html-footer.ejs %>
+  <script>
+    
+    function AJAX_checkCode(){$('#qrcode').html('');var codeInp=$('#codeRU').val();var qrcode = new QRCode("qrcode",{text:codeInp,width: 130,height: 130,colorDark :"#000000",colorLight :"#ffffff00",correctLevel : QRCode.CorrectLevel.H});
+      let i=getInfFrCode(codeInp);
+      $.ajax({type:'POST',url:`/ajax-get-info-from-code?c=${i.a}&id=${i.u}`,success:function(res){if(res.s){var cont=`<b class="text-primary">Tên hoạt động: </b> ${res.nameAct}<br><b class="text-primary">Họ và tên:</b> ${res.nameUser}`;$('#cont_checkin').html(cont);}else{$.notify(res.e,"error");}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/";}});
+    }
+    function getInfFrCode(c){var a='',u='',s=false;for(var i=0;i<c.length;i++){if(c[i]=='_'){s=true;continue;}if(s){u+=(c[i]!='-')?c[i]:'';}else{a+=(c[i]!='-')?c[i]:'';}}return {a:a,u:u};}
+  </script>
+</body>
+</html>

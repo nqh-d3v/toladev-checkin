@@ -1,0 +1,55 @@
+<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#ajaxNewCodeAct').click(function(){ajaxNewCodeActFunc();});
+    $(function () {$('[data-toggle="tooltip"]').tooltip()});
+  });
+  function AJAX_NewCodeActFunc(){$('#ajaxNewCodeAct').html('<i class="fas fa-circle-notch fa-spin"></i>Đang tạo');$('#ajaxNewCodeAct').attr('disabled',true);$.ajax({type:'POST',url:'/admin/ajax-new-code-activity',success:function(res){if(res){$('#codeActCreateAct').val(convToCodeAct(res));$('#ajaxNewCodeAct').html('<i class="fas fa-circle-notch"></i> Tạo mới');$('#ajaxNewCodeAct').attr('disabled',false);}else{$('#ajaxNewCodeAct').html('<i class="fas fa-exclamation-triangle"></i> Đã có lỗi! Thử lại');$('#ajaxNewCodeAct').attr('disabled',false);alert('Không thấy kết quả nào được trả về! Vui lòng thử lại sau.');}},error:function(xhr,status,err) {$('#ajaxNewCodeAct').html('<i class="fas fa-exclamation-triangle"></i> Đã có lỗi! Thử lại');$('#ajaxNewCodeAct').attr('disabled', false);alert(err);}});}
+  function AJAX_reloadAct(){$.ajax({type:'POST',url:`/admin/ajax-reload-activity`,success:function(d){if(d){$.notify('Dữ liệu đã được tải lại', 'success');var cont='';if(d.length>0){cont+=`<b>Tìm thấy ${d.length} hoạt động phù hợp.</b><div class="table-responsive"><table class="table text-center table-bordered table-hover"><thead><tr class="d-flex"><th class="col-1">STT</th><th class="col-3">Tên hoạt động</th><th class="col-2">Tham dự</th><th class="col-2">Điểm danh</th><th class="col-4" colspan="4">Thao tác</th></tr></thead><tbody>`;for(var i=0;i<d.length;i++){cont+=`<tr class="d-flex `; if(!d[i].isHaveFile)cont+=` alert-danger `; cont+=`"><th class="col-1">${i+1}</th><th class="col-3">${d[i].name}</th><th class="col-2">${d[i].numTPI}</th><th class="col-2">${d[i].listCheckin.length}</th>`;if(d[i].isHaveFile){cont+=`<th class="col-1" data-toggle="tooltip" title="Tải xuống file danh sách tham gia"><a href="../files/xlsx/${d[i].code}.xlsx" style="text-decoration:none" download><i class="fas fa-file-download" ></i></a></th>`;}else{cont+=`<th class="col-1" data-toggle="tooltip" title="Tải lên file danh sách tham gia"><i class="fas fa-file-upload" data-toggle="modal" data-target="#uploadFileActModal" onclick="AJAX_checkAct_uploadFileCheckin('${d[i].code}')"></i></th>`;}cont+=`<th class="col-1"><i class="fas fa-eye text-primary"></i></th><th class="col-1"><i class="fas fa-edit text-success" data-toggle="modal" data-target="#editActModal" onclick="AJAX_editActModal('${d[i].code}')" ></i></th><th class="col-1"><i class="fas fa-trash-alt text-danger" data-toggle="modal" data-target="#delActModal" onclick="authenticateDelAct('${d[i].code}')"></i></th></tr> `;}cont+=` </tbody></table></div>`;}else{cont+=` <b>Bạn chưa có hoạt động nào!</b><br><button class="btn btn-outline-primary" data-toggle="modal" data-target="#createNewActModal" onclick="AJAX_NewCodeActFunc()">Tạo hoạt động mới</button> `}$('#data_activities').html(cont);}else{alert('Hết thời gian chờ, không tìm thấy kết quả trả về!');window.location.href="/admin";}},error: function(xhr, status, err) {alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function AJAX_delActByCode(c){$('#delActModal').modal('hide');$.ajax({type:'POST',url:`/admin/ajax-del-activity?c=${c}`,success:function(res){if(res){$.notify(`Hoạt động <b>${res}</b> đã được xóa thành công`, "success");AJAX_reloadAct();}else{$.notify('Không tìm thấy thông tin về hoạt động cần xóa!','error');setTimeout(`window.location.href="/admin"`,5000);}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function AJAX_checkAct_uploadFileCheckin(c){$('#progressUploadFileAct').text('Đang tải...');$('#fileAct').val('');$('#fileAct').attr('disabled',true);$('#uploadFileActSubmitBtn').attr('disabled',true);$.ajax({type:'POST',url:`/admin/ajax-check-activity?c=${c}`,success: function(res){if(res){$('#progressUploadFileAct').html(`Cập nhật file danh sách cho gia cho hoạt động <b>${res}</b>`);$('#fileAct').attr('disabled',false);$('#uploadFileActSubmitBtn').attr('onclick',`authenticateUpFileAct('${c}',false,'formUploadFileCheckinAct')`);}else{$('#progressUploadFileAct').html(`Không tìm thấy thông tin về hoạt động với mã code: ${convToCodeAct(c)}`);}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function AJAX_editActModal(c){$('#progressEditAct').text('Đang tải...');$.ajax({type:'POST',url:`/admin/ajax-get-activity?c=${c}`,success: function(res){if(res){$('#progressEditAct').html(`Chỉnh sửa hoạt động <b>${res}</b>`);$('#name_editAct').val(res.name);$('#updateNameActSubmitBtn').attr('onclick',`AJAX_updateNameAct('${c}')`);$('#formUpdateFileCheckinAct').attr('action',`/admin/upload-list-checkin/${c}`);if(res.isHaveFile){$('#updateFileActSubmitBtn').attr('onclick',`authenticateUpFileAct('${c}',true,'formUpdateFileCheckinAct')`);$('#progressUpdateFileAct').html('File danh sách đã được cập nhật.<br>Có thể điểm danh')}else{$('#updateFileActSubmitBtn').attr('onclick',`authenticateUpFileAct('${c}',false,'formUpdateFileCheckinAct')`);$('#progressUpdateFileAct').html('File danh sách chưa được cập nhật.<br>Vui lòng cập nhật file để điểm danh')}}else{$('#progressEditAct').html(`Không tìm thấy thông tin về hoạt động với mã code: ${convToCodeAct(c)}`);}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function AJAX_updateNameAct(c){let n=$('#name_editAct').val();if(n==''&&n.length<4){$.notify("Độ dài tối thiểu của tên hoạt động là 4","error")}else{$.ajax({type:'POST',url:`/admin/ajax-update-name-activity/${c}?n=${n}`,success:function(res){if(res){$.notify("Cập nhật thành công","success");$('#editActModal').modal('hide');}else{$.notify("Không tìm thấy thông tin hoạt động cần cập nhật","error");$('#editActModal').modal('hide');}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}}
+  function AJAX_uploadFileAct(c,i){var f=new FormData($('#'+i)[0]);$.ajax({type:"POST",enctype:'multipart/form-data',url:`/admin/ajax-upload-list-checkin/${c}`,data:f,dataType:'json',contentType:'application/json',processData:false,contentType:false,cache:false,success:(d)=>{if(d.s){$.notify("File điểm danh đã được tải lên! Tải lại dữ liệu để xem kết quả!","success");}else{$.notify(d.e,"error");}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function AJAX_checkInActByCode(c,i){$.ajax({type:'POST',url:`/admin/ajax-checkin-activity/${c}?id=${i}`,success: function(res){if(res){if(res.s){$.notify(res.i,"success");}else{$.notify(res.e,"error");}$('#progressCheckin').html(`<b clas="text-primary">Vui lòng cung cấp mã QR để điểm danh...</b>`);}else{$.notify("Không tìm thấy dữ liệu trả về! Vui lòng thử lại!","error");}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function AJAX_updateNameUser(){let n=$('#nameUserEdit').val();if(n==''){$.notify("Vui lòng không để trống!","error");}else{$.ajax({type:'POST',url:`/admin/ajax-update-info-me?name=${n}`,success:function(res){if(res.s){$.notify("Cập nhật thành công","success");$('#nameUserEdit').val(n);}else{$.notify("Cập nhật thất bại!","error");}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}}
+  function convToCodeAct(s){var o='';for(var i=0;i<s.length;i++){o+=(i==3||i==7||i==11)?s[i]+'-':s[i];}return o;} 
+  function authenticateDelAct(c){$('#delActBtn').attr('onclick',`AJAX_delActByCode('${c}')`);}
+  function authenticateUpFileAct(c,s,i){if(s){$('#authenticateUpFileModal').modal('show');$('#authenticatedUpFileActBtn').attr('onclick',`AJAX_uploadFileAct('${c}','${i}');`);}else{AJAX_uploadFileAct(c,i);}}
+  function AJAX_viewActModal(c){$.ajax({type:'POST',url:`/admin/ajax-get-activity?c=${c}`,success: function(i){if(i){$('#viewActProgress').html(`Thông tin hoạt động <b>${i.name}</b>`);$('#name_viewAct').text(i.name);$('#numTPI_viewAct').text(i.numTPI);$('#numCheckin_viewAct').text(i.listCheckin.length);}else{$('#viewActProgress').html('<i>Không tìm thấy hoạt động cần xem!</i>')}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
+  function validFile(i,s){var t=$('#'+i)[0].files[0].type;if(t!='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){$.notify('Vui lòng chọn file excel (*.xlsx)','error');$('#'+i).val('');$('#'+s).attr('disabled',true);}else{$('#'+s).attr('disabled',false);}}
+  //--QR reader
+  
+  let scanner = new Instascan.Scanner({ video: document.getElementById('qrViewer') });
+  
+  function startCam(){
+    $('#qrViewer').fadeIn();
+    scanner.addListener('scan', function (content) {
+      var info = getInfFrCode(content);
+      $('#progressCheckin').html(`<i class="text-secondary">Hoạt động: ${info.a}-Người dùng: ${info.u}</i><br><b class="text-primary"><i class="fas fa-spin fa-circle-notch"></i> Đang kiểm tra thông tin...</b>`);
+      AJAX_checkInActByCode(info.a,info.u);
+    });
+    Instascan.Camera.getCameras().then(function (cameras) {
+      if (cameras.length > 0) {
+        $('#progressCheckin').html('<b class="text-primary">Đang sử dụng máy ảnh của bạn.</b>');
+        $('#turnOnCamBtn').fadeOut();$('#turnOffCamBtn').fadeIn();
+        scanner.start(cameras[0]);
+      } else {
+        console.error('No cameras found.');
+        $('#progressCheckin').html('<b class="text-danger">Không tìm thấy chức năng máy ảnh trên thiết bị của bạn!</b>');
+      }
+    }).catch(function (e) {
+      alert('Đã có 1 lỗi xảy ra trong quá trình chạy chức năng quét mã QR!\nVui lòng thử lại sau!\n('+e+')');
+    });
+  }
+  
+  function stopCam(){$('#turnOnCamBtn').fadeIn();$('#turnOffCamBtn').fadeOut();scanner.stop();$('#qrViewer').fadeOut();$('#progressCheckin').html('<b class="text-primary">Máy ảnh đã được tắt</b>');}
+  function getInfFrCode(c){var a='',u='',s=false;for(var i=0;i<c.length;i++){if(c[i]=='_'){s=true;continue;}if(s){u+=(c[i]!='-')?c[i]:'';}else{a+=(c[i]!='-')?c[i]:'';}}return {a:a,u:u};}
+</script>
+<!-- Notify -->
+<% if(mess&&mess!=''){ %>
+<script>
+  $.notify("<%- mess %>", "success");
+</script>  
+<% } %>

@@ -1,0 +1,113 @@
+body{
+  font-family: 'Nunito', sans-serif;
+}
+
+.night-mode{background-color: #202020; }
+
+.code{width: 100%; background-color: #202020; box-sizing: border-box; overflow: auto;}
+.code pre{color: rgb(0, 162, 255); overflow: auto; height: 300px;}
+.night-mode .code pre{color: white; overflow: auto; height: 300px;}
+
+.night-mode .nav-project-rp{background-color: #272727;}
+
+.night-mode-opt{position: fixed; bottom: 5px; left: 5px;}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin: 5px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(172, 172, 172);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #131313;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #131313;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+footer{width: 100%; height: auto;}
+.night-mode footer{color: rgb(212, 212, 212)}
+
+footer .footer-img{width: 100%; height: 100px; background: #0000 url('../img/footer-svg.svg') no-repeat center center; background-size: cover;} 
+footer .footer-cont{color: rgb(223, 223, 223); height: auto; font-size: 14px; font-family: 'Nunito'; background-color: #007bff}
+
+/* Hover card scale */
+.card-hover .img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  transition: all ease-in-out .5s;
+}
+
+.card-hover {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-hover-cont {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.52);
+  position: absolute;
+  top: 0; right: 0; left: 0; bottom: 0;
+  opacity: 0;
+  transition: .5s;
+}
+.card-hover:hover .card-hover-cont {
+  opacity: 1;
+  transition:ease-in-out 0.5s;
+}
+
+.card-hover:hover .img {
+  transform: scale(1.2);
+  transition: all ease-in-out 0.5s;
+}
+.img-nt132{background: url('../img/nt132.svg') no-repeat center center;}
+
+/* Other */
+@media only screen and (max-width: 1100px) and (min-width: 801px){
+  .body-container{padding-top: 320px !important}
+}
+@media only screen and (max-width: 800px) and (min-width: 581px) {
+  .body-container{padding-top: 230px !important}
+}
+
+.card-trans-white{background-color: rgba(255, 255, 255, 0.75) !important}
+

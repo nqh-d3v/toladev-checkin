@@ -1,0 +1,38 @@
+<% if(act.length > 0) { %>
+<% var l=act.length; %>
+<b>Tìm thấy <%- l %> hoạt động phù hợp</b>
+<div class="table-responsive">
+  <table class="table text-center table-bordered table-hover">
+    <thead>
+      <tr class="d-flex">
+        <th class="col-1">STT</th>
+        <th class="col-3">Tên hoạt động</th>
+        <th class="col-2">Tham dự</th>
+        <th class="col-2">Điểm danh</th>
+        <th class="col-4" colspan="4">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(var i=0;i<l;i++){ %>
+      <tr class="d-flex <% if(!act[i].isHaveFile) { %>alert-danger<% } %>">
+        <th class="col-1"><%- i+1 %></th>
+        <th class="col-3"><%- act[i].name %></th>
+        <th class="col-2"><%- act[i].numTPI %></th>
+        <th class="col-2"><%- act[i].listCheckin.length %></th>
+        <% if(act[i].isHaveFile) { %>
+        <th class="col-1" data-toggle="tooltip" title="Tải xuống file danh sách tham gia"><a href="../files/xlsx/<%- act[i].code %>.xlsx" style="text-decoration: none;" style="text-decoration: none;" download><i class="fas fa-file-download"></i></a></th>  
+        <% } else { %>
+        <th class="col-1" data-toggle="tooltip" title="Tải lên file danh sách tham gia"><i class="fas fa-file-upload" data-toggle="modal" data-target="#uploadFileActModal" onclick="AJAX_checkAct_uploadFileCheckin('<%- act[i].code %>')"></i></th>
+        <% } %>
+        <th class="col-1"><i class="fas fa-eye text-primary" data-toggle="modal" data-target="#viewActModal" onclick="AJAX_viewActModal('<%- act[i].code %>')"></i></th>
+        <th class="col-1"><i class="fas fa-edit text-success" data-toggle="modal" data-target="#editActModal" onclick="AJAX_editActModal('<%- act[i].code %>')"></i></th>
+        <th class="col-1"><i class="fas fa-trash-alt text-danger" data-toggle="modal" data-target="#delActModal" onclick="authenticateDelAct('<%- act[i].code %>')"></i></th>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+<% } else { %>
+<b>Bạn chưa có hoạt động nào!</b><br>
+<button class="btn btn-outline-primary" data-toggle="modal" data-target="#createNewActModal" onclick="AJAX_NewCodeActFunc()">Tạo hoạt động mới</button>
+<% } %>

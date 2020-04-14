@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Điểm danh | Quản trị viên</title>
+  <% include ../partials/admin-head %>
+</head>
+
+<body class="">
+  <div class="wrapper ">
+    <div class="sidebar" data-color="blue" data-active-color="danger">
+      <div class="logo">
+        <a href="http://www.toladev.info" class="simple-text logo-mini">
+          <div class="logo-image-small">
+            <img src="../img/DEV_850.png">
+          </div>
+        </a>
+        <a href="http://www.toladev.info" class="simple-text logo-normal">
+          Tớ là Dev
+        </a>
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li class="active ">
+            <a href="javascript:void(0)">
+              <i class="fas fa-home"></i>
+              <p>quản lý</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <div class="navbar-toggle">
+              <button type="button" class="navbar-toggler">
+                <span class="navbar-toggler-bar bar1"></span>
+                <span class="navbar-toggler-bar bar2"></span>
+                <span class="navbar-toggler-bar bar3"></span>
+              </button>
+            </div>
+            <a class="navbar-brand" href="#pablo">Quản lý hệ thống điểm danh trực tuyến</a>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navigation">
+            <form>
+              <div class="input-group no-border">
+                <input type="text" value="" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                  <div class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <ul class="navbar-nav">
+              <li class="nav-item btn-rotate dropdown">
+                <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-bell"></i>
+                  <p>
+                    <span class="d-lg-none d-md-block">Thao tác</span>
+                  </p>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item" href="javascript:void(0)">Thêm hoạt động</a>
+                  <a class="dropdown-item" href="javascript:void(0)">Xem hoạt động</a>
+                  <a class="dropdown-item" href="javascript:void(0)">Tất cả hoạt động</a>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn-rotate" href="javascript:void(0)" data-toggle="modal" data-target="#settingUserModal">
+                  <i class="fas fa-cog"></i>
+                  <p>
+                    <span class="d-lg-none d-md-block">Account</span>
+                  </p>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="content">
+        <div class="row">
+          <div class="col-sm-12">
+            <button class="btn btn-primary mt-0 mb-1" data-toggle="modal" data-target="#createNewActModal" onclick="AJAX_NewCodeActFunc()">Thêm hoạt động</button>
+            <div class="card mb-2">
+              <div class="card-header">
+                <button class="btn btn-warning mt-0 mb-1" onclick="AJAX_reloadAct()">Tải lại dữ liệu</button>
+              </div>
+              <div class="card-body" id="data_activities">
+                <% include ../partials/admin-table-manage %>
+              </div>
+            </div>
+            <div class="card mb-2">
+              <div class="card-body" id="checkinActArea">
+                <% include ../partials/admin-checkin-area %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer footer-black  footer-white ">
+        <div class="container-fluid">
+          <div class="row">
+            <nav class="footer-nav">
+              <ul>
+                <li>
+                  <a href="https://www.toladev.info" target="_blank">Creative Tim</a>
+                </li>
+              </ul>
+            </nav>
+            <div class="credits ml-auto">
+              <span class="copyright">
+                ©
+                <script>
+                  document.write(new Date().getFullYear())
+                </script>, made with <i class="fa fa-heart heart"></i> by NQH
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <!-- Modal - Tạo hoạt động -->
+  <div class="modal fade" id="createNewActModal" tabindex="-1" role="dialog" aria-labelledby="createNewActModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createNewActModalLabel">Tạo hoạt động</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="/admin/create-activity" method="POST" class="modal-body">
+          <input type="text" name="name" placeholder="Tên hoạt động" class="form-control mb-1" required>
+          <div class="input-group mb-1">
+            <input type="text" name="code" placeholder="Code hoạt động" class="form-control" style="height:38px" id="codeActCreateAct" readonly>
+            <div class="input-group-append">
+              <button class="btn btn-primary m-0" type="button" id="ajaxNewCodeAct">
+                <i class="fas fa-circle-notch"></i> Tạo mới
+              </button>
+            </div>
+          </div>
+          <button class="btn btn-outline-success" type="submit"><i class="fas fa-plus"></i> Tạo</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal - Xem hoạt động -->
+  <div class="modal fade" id="viewActModal" tabindex="-1" role="dialog" aria-labelledby="viewActModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewActModalLabel">Xem hoạt động</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <span class="text-primary" id="viewActProgress"></span><br>
+          <b>Tên hoạt động: </b><span id="name_viewAct"></span><br>
+          <b>Số lượng tham gia : </b><span id="numTPI_viewAct"></span> người<br>
+          <b>Số lượng điểm danh: </b><span id="numCheckin_viewAct"></span> người<br>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal - Sửa hoạt động -->
+  <div class="modal fade" id="editActModal" tabindex="-1" role="dialog" aria-labelledby="editActModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editActModalLabel">Chỉnh sửa hoạt động</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <b>Tên hoạt động</b>
+            <input type="text" placeholder="Tên hoạt động" id="name_editAct" value="" class="form-control">
+            <button class="btn btn-outline-primary" id="updateNameActSubmitBtn" onclick="">Cập nhật</button>
+          </div>
+          <hr class="mb-1 mt-1">
+          <form id="formUpdateFileCheckinAct" action="" method="POST" enctype="multipart/form-data">
+            <span id="progressUpdateFileAct"></span><br>
+            <span class="text-danger">Định dạng file cho phép (*.xlsx)</span>
+            <div class="input-group mb-1">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" name="fileact" id="fileUpdateAct" onchange="validFile('fileUpdateAct','updateFileActSubmitBtn')" aria-describedby="inputGroupFileAddon01" required>
+                <label class="custom-file-label" for="inputGroupFile01">Chọn file</label>
+              </div>
+            </div>
+            <button class="btn btn-success mt-0 mb-0" id="updateFileActSubmitBtn" data-dismiss="modal" onclick="" disabled>Tải lên</button>
+            <hr class="mt-1 mb-1">
+            <span>File mẫu (File  tải lên cần có cấu trúc như sau):</span><br>
+            <a href="../files/xlsx/example-list-checkin.xlsx" download class="btn btn-outline-danger mt-0" style="text-decoration: none;">Tải file mẫu</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal - Xóa hoạt động -->
+  <div class="modal fade" id="delActModal" tabindex="-1" role="dialog" aria-labelledby="delActModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="delActModalLabel">Xác nhận hành động</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <span id="delActProgress">Bạn có chắc chắn muốn xóa hoạt động này hay không?</span>
+        </div>
+        <div class="modal-footer" id="footDelActModal">
+          <button class="btn btn-danger" id="delActBtn" onclick="">Xóa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal - Xác nhận ghi đè file cũ -->
+  <div class="modal fade" id="authenticateUpFileModal" tabindex="-1" role="dialog" aria-labelledby="authenticateUpFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="authenticateUpFileModalLabel">Xác nhận hành động</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <b class="text-danger">Dường như bạn đã upload file điểm danh trước đó. Bạn có muốn tiếp tục không?</b><br>
+          <i class="text-secondary">Nếu tiếp tục, file cũ sẽ bị xóa và bị thay thế bằng file mới, thông tin điểm danh sẽ được làm mới(Xóa thông tin điểm danh cũ)!</i>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="authenticatedUpFileActBtn" onclick="" data-dismiss="modal">Tiếp tục</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal - Tải lên file danh sách tham gia -->
+  <div class="modal fade" id="uploadFileActModal" tabindex="-1" role="dialog" aria-labelledby="uploadFileActModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadFileActModalLabel">Tải lên file danh sách tham gia</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="formUploadFileCheckinAct" method="POST" enctype="multipart/form-data" class="modal-body">
+          <span id="progressUploadFileAct"></span><br>
+          <span class="text-danger">Định dạng file cho phép (*.xlsx)</span>
+          <div class="input-group mb-1">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" name="fileact" id="fileAct" onchange="validFile('fileAct','uploadFileActSubmitBtn')" aria-describedby="inputGroupFileAddon01" required>
+              <label class="custom-file-label" for="inputGroupFile01">Chọn file</label>
+            </div>
+          </div>
+          <button class="btn btn-success mt-0 mb-1" type="button" data-dismiss="modal" id="uploadFileActSubmitBtn" onclick="" disabled>Tải lên</button>
+          <hr class="mt-1 mb-1">
+          <span>File mẫu (File  tải lên cần có cấu trúc như sau):</span>
+          <a href="../files/xlsx/example-list-checkin.xlsx" download class="btn btn-outline-danger" style="text-decoration: none;">Tải file mẫu</a>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal - Cài đặt người dùng -->
+  <div class="modal fade" id="settingUserModal" tabindex="-1" role="dialog" aria-labelledby="settingUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingUserModalLabel">Người dùng</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5 class="text-secondary">Cập nhật thông tin</h5>
+          <b class="text-primary">Họ và tên:</b>
+          <input type="text" placeholder="Họ và tên" class="form-control" value="<%- user.name %>" id="nameUserEdit">
+          <button class="btn btn-primary" onclick="AJAX_updateNameUser()">Cập nhật</button>
+          <hr>
+          <h5 class="text-secondary">Cập nhật mật khẩu</h5>
+          <b class="text-primary">Mật khẩu cũ:</b>
+          <input type="password" placeholder="Mật khẩu cũ" id="oldPass" class="form-control">
+          <b class="text-primary">Mật khẩu mới:</b>
+          <input type="password" placeholder="Mật khẩu mới" id="newPass" class="form-control">
+          <button class="btn btn-danger">Cập nhật mật khẩu</button>
+        </div>
+        <div class="modal-footer">
+          <a href="/admin/logout" style="text-decoration: none;" class="btn btn-danger">Đăng xuất</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% include ../partials/admin-footer %>
+  <% include ../partials/scripts %>
+</body>
+</html>
