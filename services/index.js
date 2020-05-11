@@ -1,6 +1,4 @@
 var Activity = require('../models/activities');
-var mongoose = require('mongoose');
-var readXlsxFile = require('read-excel-file/node');
 
 module.exports.getNameActByCode=async function(c){
   let act=await Activity.findOne({code:c});

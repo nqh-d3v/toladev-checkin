@@ -34,8 +34,8 @@ module.exports.sendMailActive= async function(a,c,i,n,m){
     port: 465,
     secure: true,
     auth: {
-      user: 'mmtt2018.uit@gmail.com',
-      pass: 'quochuy0847'
+      user: '<your username gmail account>',
+      pass: '<your password gmail account>'
     },
     tls: {
       // do not fail on invalid certs

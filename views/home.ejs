@@ -62,7 +62,7 @@
         let rstr= randStr(3);
         localStorage.setItem("token-checkin-active", now+"@"+rstr);
       }
-      $.getJSON("https://ipinfo.io/json?token=96cd03e8a24348", function(r){
+      $.getJSON("https://ipinfo.io/json?token=<your_token>", function(r){
         ip = r.ip;
         time = r.timezone;
         $('#ipAccess').text(ip);
