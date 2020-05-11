@@ -13,12 +13,19 @@
       </tr>
     </thead>
     <tbody>
+      <% 
+        function numCheckedIn(arr) {
+          let numR = 0;
+          for(var ij=0;ij<arr.length;ij++)if(arr[ij].isChecked)numR++;
+          return numR;
+        }  
+      %> 
       <% for(var i=0;i<l;i++){ %>
       <tr class="d-flex <% if(!act[i].isHaveFile) { %>alert-danger<% } %>">
         <th class="col-1"><%- i+1 %></th>
         <th class="col-3"><%- act[i].name %></th>
         <th class="col-2"><%- act[i].numTPI %></th>
-        <th class="col-2"><%- act[i].listCheckin.length %></th>
+        <th class="col-2"><%-  numCheckedIn(act[i].listCheckin) %></th>
         <% if(act[i].isHaveFile) { %>
         <th class="col-1" data-toggle="tooltip" title="Tải xuống file danh sách tham gia"><a href="../files/xlsx/<%- act[i].code %>.xlsx" style="text-decoration: none;" style="text-decoration: none;" download><i class="fas fa-file-download"></i></a></th>  
         <% } else { %>

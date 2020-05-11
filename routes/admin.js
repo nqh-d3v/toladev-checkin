@@ -18,6 +18,7 @@ var storageFileXLSX = multer.diskStorage({
 router.get('/login', controllers.isNotLogined_next, controllers.getLogin);
 router.post('/login', controllers.isNotLogined_next, controllers.postLogin);
 router.post('/create-account', controllers.isNotLogined_next, controllers.postCreateAccount);
+router.get('/send-mail-act', controllers.isLogined_next, controllers.getSendMailAct);
 router.get('/', controllers.isLogined_next, controllers.getHome);
 router.get('/logout', controllers.getLogout);
 

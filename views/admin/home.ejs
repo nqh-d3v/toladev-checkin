@@ -89,7 +89,7 @@
       <div class="content">
         <div class="row">
           <div class="col-sm-12">
-            <button class="btn btn-primary mt-0 mb-1" data-toggle="modal" data-target="#createNewActModal" onclick="AJAX_NewCodeActFunc()">Thêm hoạt động</button>
+            <button class="btn btn-primary mt-0 mb-1" data-toggle="modal" data-target="#createNewActModal">Thêm hoạt động</button>
             <div class="card mb-2">
               <div class="card-header">
                 <button class="btn btn-warning mt-0 mb-1" onclick="AJAX_reloadAct()">Tải lại dữ liệu</button>
@@ -140,7 +140,7 @@
           </button>
         </div>
         <form action="/admin/create-activity" method="POST" class="modal-body">
-          <input type="text" name="name" placeholder="Tên hoạt động" class="form-control mb-1" required>
+          <input type="text" name="name" placeholder="Tên hoạt động" class="form-control mb-1" id="nameActCreateAct" required>
           <div class="input-group mb-1">
             <input type="text" name="code" placeholder="Code hoạt động" class="form-control" style="height:38px" id="codeActCreateAct" readonly>
             <div class="input-group-append">
@@ -156,7 +156,7 @@
   </div>
   <!-- Modal - Xem hoạt động -->
   <div class="modal fade" id="viewActModal" tabindex="-1" role="dialog" aria-labelledby="viewActModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="viewActModalLabel">Xem hoạt động</h5>
@@ -169,6 +169,27 @@
           <b>Tên hoạt động: </b><span id="name_viewAct"></span><br>
           <b>Số lượng tham gia : </b><span id="numTPI_viewAct"></span> người<br>
           <b>Số lượng điểm danh: </b><span id="numCheckin_viewAct"></span> người<br>
+          <hr class="mb-1 mt-1">
+          <div>
+            <!-- Gửi mail cho người tham gia -->
+            <i class="text-primary">Chỉ số: 1 - Đã điểm danh/checkin ~ 0 - Chưa điểm danh/checkin</i>
+            <div class="table-responsive" style="max-height: 500px;">
+              <table class="table table-hover table-boredered text-center">
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>ID</th>
+                    <th>Họ và tên</th>
+                    <th>Gmail</th>
+                    <th>Chỉ số</th>
+                  </tr>
+                </thead>
+                <tbody id="listJoin_body_viewAct"></tbody>
+              </table>
+            </div>
+            <b>Số lượng gmail hợp lệ/Tất cả: </b><span id="numValid_viewAct"></span> <br>
+            <a href="/admin/send-mail-act?c=" class="btn btn-primary" style="text-decoration: none;" id="sendMail_viewAct">Gửi mail cho người tham dự</a>
+          </div>
         </div>
       </div>
     </div>
@@ -204,6 +225,7 @@
             <span>File mẫu (File  tải lên cần có cấu trúc như sau):</span><br>
             <a href="../files/xlsx/example-list-checkin.xlsx" download class="btn btn-outline-danger mt-0" style="text-decoration: none;">Tải file mẫu</a>
           </form>
+          
         </div>
       </div>
     </div>
@@ -295,7 +317,7 @@
           <input type="password" placeholder="Mật khẩu cũ" id="oldPass" class="form-control">
           <b class="text-primary">Mật khẩu mới:</b>
           <input type="password" placeholder="Mật khẩu mới" id="newPass" class="form-control">
-          <button class="btn btn-danger">Cập nhật mật khẩu</button>
+          <button class="btn btn-danger" onclick="AJAX_updatePasswordUser()">Cập nhật mật khẩu</button>
         </div>
         <div class="modal-footer">
           <a href="/admin/logout" style="text-decoration: none;" class="btn btn-danger">Đăng xuất</a>

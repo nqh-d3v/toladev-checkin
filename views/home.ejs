@@ -16,11 +16,12 @@
           <div class="card-body">
             <span class="text-primary">Mã checkin được gửi vào gmail bạn sử dụng để đăng ký hoạt động, kiểm tra và điền nó vào ô bên dưới</span>
             <div class="input-group mb-1">
-              <input type="text" id="codeRU" placeholder="xxxx-xxxx-xxxx-xxxx_xxxx-xxxx-xxxx" class="form-control">
+              <input type="text" id="codeRU" placeholder="xxxxxxxxxx_xxxx" class="form-control">
               <div class="input-group-append">
                 <button class="btn btn-primary" onclick="AJAX_checkCode()"><i class="fa fa-check"></i> Kiểm tra</button>
               </div>
             </div>
+            <span class="text-primary"><b>IP: </b><i id="ipAccess">Đang kiểm tra...</i></span>
           </div>
         </div>
         <div class="card mb-3 card-trans-white">
@@ -36,17 +37,60 @@
             </div>
           </div>
         </div>
+        <div class="card mb-3 card-trans-white">
+          <div id="demo"></div>
+        </div>
       </div>
       <div class="col-sm-3"></div>
     </div>
   </div>
   <% include ./partials/html-footer.ejs %>
   <script>
-    
-    function AJAX_checkCode(){$('#qrcode').html('');var codeInp=$('#codeRU').val();var qrcode = new QRCode("qrcode",{text:codeInp,width: 130,height: 130,colorDark :"#000000",colorLight :"#ffffff00",correctLevel : QRCode.CorrectLevel.H});
-      let i=getInfFrCode(codeInp);
-      $.ajax({type:'POST',url:`/ajax-get-info-from-code?c=${i.a}&id=${i.u}`,success:function(res){if(res.s){var cont=`<b class="text-primary">Tên hoạt động: </b> ${res.nameAct}<br><b class="text-primary">Họ và tên:</b> ${res.nameUser}`;$('#cont_checkin').html(cont);}else{$.notify(res.e,"error");}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/";}});
+    let ip = "";
+    let time = "";
+    let token = "";
+    $(document).ready(function(){
+      if(!window.localStorage){
+        alert('Trình duyệt này không hỗ trợ chức năng này, vui lòng thử lại sau!\n(Hệ thống sẽ tự động đưa về trang chủ toladev)');
+        window.location.href="https://toladev.info";
+      }
+      token = localStorage.getItem("token-checkin-active");
+      console.log(`token: '${token}'`);
+      if(typeof(token)==undefined || token == "" || token == null) {
+        //Tạo localstorage
+        let now = Date.now();
+        let rstr= randStr(3);
+        localStorage.setItem("token-checkin-active", now+"@"+rstr);
+      }
+      $.getJSON("https://ipinfo.io/json?token=96cd03e8a24348", function(r){
+        ip = r.ip;
+        time = r.timezone;
+        $('#ipAccess').text(ip);
+      });
+    });
+    function AJAX_checkCode(){
+      $('#qrcode').html('');$('#cont_checkin').html('');
+      if((ip == "" || time == "")&&is) setTimeout(AJAX_checkCode(), 2000)
+      else {
+        let i=getInfFrCode($('#codeRU').val());
+        $.ajax({type:'POST',data: { ip: ip, timezone: time, token: localStorage.getItem("token-checkin-active")},dataType: 'json', url:`/ajax-get-info-from-code?c=${i.a}&id=${i.u}`,success:function(res){ if(res.s){genQR();var cont=`<b class="text-primary">Tên hoạt động: </b> ${res.nameAct}<br><b class="text-primary">Họ và tên:</b> ${res.nameUser}`;$('#cont_checkin').html(cont);}else{$.notify(res.e,"error");}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/";}});
+      }
     }
+    function genQR(){
+      if($('#codeRU').val() == "") return;
+      $('#qrcode').html('');
+      var codeInp=$('#codeRU').val();
+      var qrcode = new QRCode("qrcode",{
+        text:codeInp,
+        width: 130,height: 130,
+        colorDark :"#000000",colorLight :"#ffffff00",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+    }
+    function checkStorage(){
+      
+    }
+    function randStr(length) {var result='';var characters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';var charactersLength=characters.length;for(var i=0;i<length;i++){result+=characters.charAt(Math.floor(Math.random()*charactersLength));}return result;}
     function getInfFrCode(c){var a='',u='',s=false;for(var i=0;i<c.length;i++){if(c[i]=='_'){s=true;continue;}if(s){u+=(c[i]!='-')?c[i]:'';}else{a+=(c[i]!='-')?c[i]:'';}}return {a:a,u:u};}
   </script>
 </body>

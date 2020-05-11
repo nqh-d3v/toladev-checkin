@@ -35,11 +35,26 @@ module.exports.getLogout = async function (req, res) {
 module.exports.postCreateActivity = async function(req, res) {
   let info = {
     name: req.body.name,
-    code: removeCharInStr('-',req.body.code),
+    code: req.body.code,
     auth: req.user._id,
   };
   await services.createNewActivity(info);
   res.redirect('/admin');
+}
+
+module.exports.getSendMailAct=async function(req,res) {
+  let c = req.query.c;
+  let i = await services.getActByCode(c, req.user._id);
+  if(!i) {
+    req.flash('mess', 'Không tìm thấy thông tin hoạt động cần gửi mail!');
+    return res.redirect('/admin');
+  }
+  await readXlsxFile(`./public/files/xlsx/${c}.xlsx`,{sheet:'DIEMDANH'}).then(async function(rows,error){
+    if(error){req.flash('mess', 'Một lỗi nào đó đã xảy ra trong quá trình xử lý file! Vui lòng thử lại sau!'); return res.redirect('/admin');}
+    for(var stt = 1; stt < rows.length; stt++) {console.log(rows[stt][1]); if(validateEmail(rows[stt][2])) await services.sendMailActive(i.name, i.code, rows[stt][0], rows[stt][1], rows[stt][2]);}
+  });
+  req.flash('mess', 'Đã gửi mail cho tất cả người tham dự có địa chỉ gmail hợp lệ!');
+  return res.redirect('/admin');
 }
 
 //-- AJAX request
@@ -56,8 +71,8 @@ module.exports.AJAX_postUploadListCheckin = async function(req, res) {
   return res.send({n:i.name,s:true});
 }
 module.exports.AJAX_createNewCodeAct = async function (req, res) {
-  let now = new Date();
-  let code = add0(now.getDate())+add0(now.getMonth()+1)+''+now.getFullYear()+''+randomNum(4)+''+randomNum(4);
+  if(!req.query.name || req.query.name.legnth < 4) return res.send(null);
+  let code = new codeAct().creatCode(req.query.name)
   var check;
   do {
     check = await services.isCodeNotExist_code(code,req.user._id);
@@ -65,7 +80,18 @@ module.exports.AJAX_createNewCodeAct = async function (req, res) {
   return res.send(check);
 }
 module.exports.AJAX_isExistAct=async function(req,res){let c=req.query.c;let n=await services.getNameActByCode(c,req.user._id);return res.send(n);}
-module.exports.AJAX_getActByCode=async function(req,res){let c=req.query.c;let a=await services.getActByCode(c,req.user._id);return res.send(a);}
+
+module.exports.AJAX_getActByCode=async function(req,res){let c=req.query.c;let a=await services.getActByCode(c,req.user._id);
+  let lst = [];
+  let lstTPI = [];
+  await readXlsxFile(`./public/files/xlsx/${c}.xlsx`,{sheet:'DIEMDANH'}).then(async function(rows,error){
+    if(error){console.log('Lỗi đọc file: '+error);return res.send({e:'Lỗi hệ thống',s:false});}
+    for(var stt=1;stt<rows.length;stt++)lst.push({id: rows[stt][0], name: rows[stt][1], gmail: rows[stt][2], isValid: validateEmail(rows[stt][2])});
+    for(var x = 0; x < a.listCheckin.length; x++) if(a.listCheckin[x].isChecked) lstTPI.push(a.listCheckin[x].id);
+    return res.send({a:a,lstJoin:lst,lstTPI:lstTPI});
+  });
+}
+
 module.exports.AJAX_delActByCode=async function(req,res){let c=req.query.c;let i=await services.delActByCode(c,req.user._id);return res.send(i);}
 module.exports.AJAX_reloadAct=async function(req,res){let a=await services.getAllMyActivities(req.user._id);return res.send(a);}
 module.exports.AJAX_updateNameAct=async function(req,res){let c=req.params.c;let n=req.query.n;if(!req.params.c||!req.query.n)return res.send(false);let nn=await services.updateNameAct(c,n,req.user._id);console.log(nn);if(nn)return res.send(nn);return res.send(null);}
@@ -82,12 +108,15 @@ module.exports.AJAX_checkinAct=async function(req,res){
     if(error){console.log('Lỗi đọc file: '+error);return res.send({e:'Lỗi hệ thống',s:false});}
     for(var stt=1;stt<rows.length;stt++)if(rows[stt][0]==id){name=rows[stt][1];break;}
     if(name!=''){
-      let na=await services.addUserCheckinAct(c,id,name,req.user._id);
+      let na=await services.addUserCheckinAct(c,id,req.user._id);
       if(na)return res.send({i:`Điểm danh thành công cho ${name}`,s:true});
       return res.send({e:`Điểm danh thất bại cho ${name}! Đã xảy ra lỗi trong quá trình lưu thông tin!`,s:false});
     }
     return res.send({e:`Không tìm thấy thông tin người tham gia hoạt động ${sc} với id: ${id}`,s:false});
   });
+}
+module.exports.AJAX_listJoin=async function(req,res){
+
 }
 module.exports.AJAX_updateInfo=async function(req,res){
   let name=req.query.name||'';
@@ -121,15 +150,37 @@ module.exports.checkActBefUploadFile=async function(req,res,next){
   return next();
 }
 
-function randomNum(num) {
-  var result           = '';
-  var characters       = '0123456789';
-  var charactersLength = characters.length;
-  for ( var i = 0; i < num; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
-
-function add0(n) {return (n<=9)?'0'+n:n;}
 function removeCharInStr(c,s){var o='';for(var i=0;i<s.length;i++)o+=(s[i]!=c)?s[i]:'';return o;}
+class codeAct{
+	constructor() {
+    this.arrOne = ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V'];
+    this.arrDat = [31,28,31,30,31,30,31,31,30,31,30,31];
+	}
+	_time(key){
+		var n = new Date(), o = '',y=n.getFullYear()+'';
+		if(n.getFullYear()%4===0&&n.getFullYear()%100!=0)this.arrDat[1] = 29;
+		o = this.arrOne[Math.abs(n.getDate()+key.length-this.arrDat[n.getMonth()])]+''+this.arrOne[Math.abs(n.getMonth()+1+key.length-12)]+''+this.arrOne[Math.abs(Number(y[0])+key.length-31)]+''+this.arrOne[Math.abs(Number(y[1])+key.length-31)]+''+this.arrOne[Math.abs(Number(y[2])+key.length-31)]+''+this.arrOne[Math.abs(Number(y[3])+key.length-31)];
+		return o;
+	}
+	_rand(n,type){
+		var l;
+		if(!n||n==0||isNaN(n))l=5 
+		else l=n;
+		var result='';
+		var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		var nums = '0123456789';
+		var charsLength=chars.length;
+		var numsLength = nums.length;
+		for(var i=0;i<l; i++){
+			result+=(type=='char')?chars.charAt(Math.floor(Math.random()*charsLength)):nums.charAt(Math.floor(Math.random()*numsLength));
+		}
+		return result;
+  }
+  creatCode(key) {
+    return this._time(key)+this._rand(2,'char')+this._rand(2, 'num');
+  }
+}
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
