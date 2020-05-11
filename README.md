@@ -5,13 +5,12 @@ Checkin activities by QR code
 ### 1/ Setting nodemailer in "services/admin.js" at line 37, 38:
  ...
 
-auth: {
   user: '<your_username_gmail_account>',
   pass: '<your_password_gmail_account>'
-},
  
  ...
- Create an gmail account, turn off access from less security application for your account.
+ 
+Create an gmail account, turn off access from less security application for your account.
 ### 2/ Access to https://info.io, create new account, get token access and setup token in "views/home.ejs" at line 65.
  ...
  
