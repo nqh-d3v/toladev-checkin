@@ -82,13 +82,15 @@ module.exports.AJAX_createNewCodeAct = async function (req, res) {
 module.exports.AJAX_isExistAct=async function(req,res){let c=req.query.c;let n=await services.getNameActByCode(c,req.user._id);return res.send(n);}
 
 module.exports.AJAX_getActByCode=async function(req,res){let c=req.query.c;let a=await services.getActByCode(c,req.user._id);
-  let lst = [];
-  let lstTPI = [];
+  let lst = []; // Mọi người
+  let lstTPI = []; //Đã điểm danh
+  let lstC = []; // Chỉ mới tạo vùng điểm danh
+  let lstCI = []; // Thông tin người dùng chỉ mới tạo vùng điểm danh
   await readXlsxFile(`./public/files/xlsx/${c}.xlsx`,{sheet:'DIEMDANH'}).then(async function(rows,error){
     if(error){console.log('Lỗi đọc file: '+error);return res.send({e:'Lỗi hệ thống',s:false});}
     for(var stt=1;stt<rows.length;stt++)lst.push({id: rows[stt][0], name: rows[stt][1], gmail: rows[stt][2], isValid: validateEmail(rows[stt][2])});
-    for(var x = 0; x < a.listCheckin.length; x++) if(a.listCheckin[x].isChecked) lstTPI.push(a.listCheckin[x].id);
-    return res.send({a:a,lstJoin:lst,lstTPI:lstTPI});
+    for(var x = 0; x < a.listCheckin.length; x++) {lstC.push(a.listCheckin[x].id); lstCI.push({id: a.listCheckin[x].id, ip: a.listCheckin[x].ipCheckin, timezone: a.listCheckin[x].timezone, createAt: a.listCheckin[x].createAt, checkinAt: a.listCheckin[x].checkinAt}); if(a.listCheckin[x].isChecked) lstTPI.push(a.listCheckin[x].id);}
+    return res.send({a:a,lstJoin:lst,lstTPI:lstTPI, lstCreated: lstC, lstCreatedInfo: lstCI});
   });
 }
 

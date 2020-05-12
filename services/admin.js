@@ -34,8 +34,8 @@ module.exports.sendMailActive= async function(a,c,i,n,m){
     port: 465,
     secure: true,
     auth: {
-      user: '<your username gmail account>',
-      pass: '<your password gmail account>'
+      user: '<your_username_gmail_account',
+      pass: '<your_password_gmail_account'
     },
     tls: {
       // do not fail on invalid certs
@@ -53,8 +53,9 @@ Hello ${n}, You are receiving this mail because you are registered to participat
 To take attendance/checkin when participating in activities.<br>
 Please use the code below and follow the instructions (or click on the link below).<br>
 <hr>
-<h6 style="text-align: center">${c}_${i}</h6>
+<h6 style="text-align: center; margin: 5px 0px; padding: 0px;">${c}_${i}</h6>
 <hr>
+<a href="https://toladev-checkin.herokuapp.com?c=${c}_${i}">Access to check in website to checkin for ${n}</a><br>
 If you do nothing, treat this email as spam and ignore it! Thanks
 </div>
 <div style="padding: 5px; box-sizing: border-box; color: white;">

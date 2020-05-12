@@ -21,7 +21,16 @@
   function authenticateUpFileAct(c,s,i){if(s){$('#authenticateUpFileModal').modal('show');$('#authenticatedUpFileActBtn').attr('onclick',`AJAX_uploadFileAct('${c}','${i}');`);}else{AJAX_uploadFileAct(c,i);}}
   
   function AJAX_viewActModal(c){$.ajax({type:'POST',url:`/admin/ajax-get-activity?c=${c}`,success: function(i){if(i){$('#viewActProgress').html(`Thông tin hoạt động <b>${i.a.name}</b>`);$('#name_viewAct').text(i.a.name);$('#numTPI_viewAct').text(i.a.numTPI);$('#numCheckin_viewAct').text(i.a.listCheckin.length);
-if(i.lstJoin.length > 0) {var listJoinMemValid = 0; var rowsCont = ''; for(var stt = 1; stt <= i.lstJoin.length; stt++) {rowsCont += `<tr `; if(i.lstJoin[stt-1].isValid){listJoinMemValid++;}else{rowsCont+='class="alert-danger"';}; rowsCont+=`><th>${stt}</th><th>${i.lstJoin[stt-1].id}</th><th>${i.lstJoin[stt-1].name}</th><th>${i.lstJoin[stt-1].gmail}</th>`; rowsCont+=(isEleInArr(i.lstTPI,i.lstJoin[stt-1].id)>=0)?'<th>1</th></tr>':'<th>0</th></tr>';}$('#listJoin_body_viewAct').html(rowsCont);$('#numValid_viewAct').text(listJoinMemValid+"/"+i.lstJoin.length); $('#sendMail_viewAct').attr('href', `/admin/send-mail-act?c=${c}`);$('#sendMail_viewAct').attr('disabled', false);$('#sendMail_viewAct').text(`Gửi mail cho danh sách tham gia(${listJoinMemValid})`);} else {$('#sendMail_viewAct').attr('disabled', true); $('#sendMail_viewAct').text('Danh sách tham gia rỗng!');}
+if(i.lstJoin.length > 0) {var listJoinMemValid = 0; var rowsCont = ''; for(var stt = 1; stt <= i.lstJoin.length; stt++) {rowsCont += `<tr `; if(i.lstJoin[stt-1].isValid){listJoinMemValid++;}else{rowsCont+='class="alert-danger"';}; rowsCont+=`><th>${stt}</th><th>${i.lstJoin[stt-1].id}</th><th>${i.lstJoin[stt-1].name}</th><th>${i.lstJoin[stt-1].gmail}</th>`; 
+
+  if(isEleInArr(i.lstTPI,i.lstJoin[stt-1].id)){ rowsCont += `<th>1</th>`;
+  }else if(isEleInArr(i.lstCreated,i.lstJoin[stt-1].id)){ rowsCont += `<th>0</th>`;
+  }else rowsCont += `<th>-1</th>`;
+  if(isEleInArr(i.lstCreated,i.lstJoin[stt-1].id)) {
+    rowsCont+=`<th>${i.lstCreatedInfo[posEleInArr(i.lstCreated,i.lstJoin[stt-1].id)].ip}</th><th>${i.lstCreatedInfo[posEleInArr(i.lstCreated,i.lstJoin[stt-1].id)].timezone}</th><th>${time(i.lstCreatedInfo[posEleInArr(i.lstCreated,i.lstJoin[stt-1].id)].createAt)}</th><th>${time(i.lstCreatedInfo[posEleInArr(i.lstCreated,i.lstJoin[stt-1].id)].checkinAt)}</th>`;
+  } else rowsCont +="<th></th><th></th><th></th><th></th>";
+
+}$('#listJoin_body_viewAct').html(rowsCont);$('#numValid_viewAct').text(listJoinMemValid+"/"+i.lstJoin.length); $('#sendMail_viewAct').attr('href', `/admin/send-mail-act?c=${c}`);$('#sendMail_viewAct').attr('disabled', false);$('#sendMail_viewAct').text(`Gửi mail cho danh sách tham gia(${listJoinMemValid})`);} else {$('#sendMail_viewAct').attr('disabled', true); $('#sendMail_viewAct').text('Danh sách tham gia rỗng!');}
 }else{$('#viewActProgress').html('<i>Không tìm thấy hoạt động cần xem!</i>')}},error:function(xhr,status,err){alert('Hệ thống tạm thời bị lỗi! Vui lòng thử lại sau!\n'+err);window.location.href="/admin";}});}
   
   function validFile(i,s){var t=$('#'+i)[0].files[0].type;if(t!='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){$.notify('Vui lòng chọn file excel (*.xlsx)','error');$('#'+i).val('');$('#'+s).attr('disabled',true);}else{$('#'+s).attr('disabled',false);}}
@@ -60,9 +69,19 @@ if(i.lstJoin.length > 0) {var listJoinMemValid = 0; var rowsCont = ''; for(var s
   }
   function isEleInArr(arr, i){
     var x =0;
+    for(x = 0;x<arr.length;x++)if(arr[x] == i)return true;
+    return false;
+  }
+  function posEleInArr(arr, i){
+    var x =0;
     for(x = 0;x<arr.length;x++)if(arr[x] == i)return x;
     return -1;
   }
+  function time(str){
+    let t = new Date(str);
+    return add0(t.getHours())+":"+add0(t.getMinutes())+":"+add0(t.getSeconds())+" "+add0(t.getDate())+"/"+add0(t.getMonth()+1)+"/"+t.getFullYear();
+  }
+  function add0(n){return (n > 9)?n:'0'+n;}
   function stopCam(){$('#turnOnCamBtn').fadeIn();$('#turnOffCamBtn').fadeOut();scanner.stop();$('#qrViewer').fadeOut();$('#progressCheckin').html('<b class="text-primary">Máy ảnh đã được tắt</b>');}
   function getInfFrCode(c){var a='',u='',s=false;for(var i=0;i<c.length;i++){if(c[i]=='_'){s=true;continue;}if(s){u+=(c[i]!='-')?c[i]:'';}else{a+=(c[i]!='-')?c[i]:'';}}return {a:a,u:u};}
 </script>

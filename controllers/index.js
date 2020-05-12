@@ -3,7 +3,8 @@ var mongoose = require('mongoose');
 var readXlsxFile = require('read-excel-file/node');
 
 module.exports.getHome = function (req, res) {
-  res.render('home');
+  let code = req.query.c||"";
+  res.render('home', {code_inp: code});
 }
 module.exports.AJAX_getInfoFromCode=async function(req,res){let code=req.query.c||'';let id=req.query.id||'?';var nameID = '';
   let name=await services.getNameActByCode(code);
@@ -30,4 +31,7 @@ module.exports.AJAX_getInfoFromCode=async function(req,res){let code=req.query.c
   });
 }
 
-function validateIPaddress(ipaddress) {return (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress));}
+function validateIPaddress(ipaddress) 
+{
+  return (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress));
+}

@@ -16,7 +16,7 @@
           <div class="card-body">
             <span class="text-primary">Mã checkin được gửi vào gmail bạn sử dụng để đăng ký hoạt động, kiểm tra và điền nó vào ô bên dưới</span>
             <div class="input-group mb-1">
-              <input type="text" id="codeRU" placeholder="xxxxxxxxxx_xxxx" class="form-control">
+              <input type="text" id="codeRU" placeholder="xxxxxxxxxx_xxxx" class="form-control" value="<%- code_inp %>">
               <div class="input-group-append">
                 <button class="btn btn-primary" onclick="AJAX_checkCode()"><i class="fa fa-check"></i> Kiểm tra</button>
               </div>
@@ -86,9 +86,6 @@
         colorDark :"#000000",colorLight :"#ffffff00",
         correctLevel : QRCode.CorrectLevel.H
       });
-    }
-    function checkStorage(){
-      
     }
     function randStr(length) {var result='';var characters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';var charactersLength=characters.length;for(var i=0;i<length;i++){result+=characters.charAt(Math.floor(Math.random()*charactersLength));}return result;}
     function getInfFrCode(c){var a='',u='',s=false;for(var i=0;i<c.length;i++){if(c[i]=='_'){s=true;continue;}if(s){u+=(c[i]!='-')?c[i]:'';}else{a+=(c[i]!='-')?c[i]:'';}}return {a:a,u:u};}
