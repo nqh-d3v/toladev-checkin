@@ -1,8 +1,11 @@
 # toladev-checkin
-Checkin activities by QR code
+Checkin activities by QR code.
+Framework: ExpressJS
+Backend:   NodeJS
+Database:  Mongodb
 
 ## SETTING BEFORE START APPLICATION
-### 1/ Setting nodemailer in "services/admin.js" at line 37, 38:
+### 1/ Setting nodemailer to send email in "services/admin.js" at line 37, 38:
  ...
 
   user: '<your_username_gmail_account>',
